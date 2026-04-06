@@ -1,0 +1,7 @@
+{
+  "java.configuration.updateBuildConfiguration": "interactive",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "editor.formatOnSave": true,
+  "editor.rulers": [120]
+}

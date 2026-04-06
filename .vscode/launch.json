@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug TestNG XML",
+      "request": "launch",
+      "mainClass": "org.testng.TestNG",
+      "args": ["${workspaceFolder}/src/test/resources/testng.xml"],
+      "projectName": "automation",
+      "cwd": "${workspaceFolder}",
+      "classPaths": ["$Runtime", "$Test"]
+    }
+  ]
+}

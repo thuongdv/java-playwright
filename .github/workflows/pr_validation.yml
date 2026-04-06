@@ -1,0 +1,37 @@
+name: Code Quality Check
+
+# This tells GitHub when to run the action
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-inspect:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Grabs your code from the repository
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Sets up the Java environment
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven' # This speeds up future builds!
+
+    # 3. Fails the build if the code isn't formatted properly
+    - name: Check Formatting (Spotless)
+      run: mvn spotless:check
+
+    # 4. Fails the build if there are code smells or rule violations
+    - name: Code Review (Checkstyle)
+      run: mvn checkstyle:check
+
+    # 5. Compiles the code to make sure it actually builds
+    - name: Compile Project
+      run: mvn clean compile
