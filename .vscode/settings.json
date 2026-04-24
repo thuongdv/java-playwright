@@ -1,7 +1,8 @@
 {
-  "java.configuration.updateBuildConfiguration": "interactive",
+  "java.configuration.updateBuildConfiguration": "automatic",
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
   "editor.formatOnSave": true,
-  "editor.rulers": [120]
+  "editor.rulers": [120],
+  "cSpell.words": ["Dbrowser"]
 }

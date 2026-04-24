@@ -34,4 +34,4 @@ jobs:
 
     # 5. Compiles the code to make sure it actually builds
     - name: Compile Project
-      run: mvn clean compile
+      run: mvn clean compile test-compile

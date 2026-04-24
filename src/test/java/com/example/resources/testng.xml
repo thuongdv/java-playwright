@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<!--
+  TestNG suite configuration.
+
+  Thread count controls parallel test execution.
+  For browser-matrix runs, keep thread-count=1 and pass -Dbrowser=xxx per run,
+  or set thread-count=3 and launch three Maven processes in CI.
+-->
+<suite name="Playwright Test Suite" verbose="1" thread-count="1" parallel="none">
+
+    <listeners>
+        <!-- Add custom listeners here, e.g. Extent Reports listener -->
+    </listeners>
+
+    <test name="Home Page Tests">
+        <classes>
+            <class name="com.example.tests.HomePageTest"/>
+        </classes>
+    </test>
+
+</suite>
