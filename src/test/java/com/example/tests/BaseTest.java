@@ -31,7 +31,7 @@ public abstract class BaseTest {
   protected final ConfigManager config = ConfigManager.getInstance();
 
   protected Playwright playwright;
-  protected BrowserContext context;
+  protected BrowserContext browserContext;
   protected Browser browser;
   protected Page page;
 
@@ -41,8 +41,8 @@ public abstract class BaseTest {
 
     playwright = Playwright.create();
     browser = BrowserFactory.createBrowser(playwright);
-    context = BrowserFactory.createContext(browser);
-    page = context.newPage();
+    browserContext = BrowserFactory.createContext(browser);
+    page = browserContext.newPage();
   }
 
   @AfterMethod(alwaysRun = true)
@@ -59,7 +59,7 @@ public abstract class BaseTest {
       // Stop tracing without saving for passing tests (retain-on-failure mode)
       if ("retain-on-failure".equals(config.getTraceMode())) {
         try {
-          context.tracing().stop();
+          browserContext.tracing().stop();
         } catch (Exception ignored) {
         }
       }
@@ -67,10 +67,6 @@ public abstract class BaseTest {
 
     closeResources();
   }
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // Helpers
-  // ──────────────────────────────────────────────────────────────────────────
 
   private void captureScreenshot(String testName) {
     if (!config.screenshotOnFailure()) return;
@@ -92,7 +88,7 @@ public abstract class BaseTest {
       Path dir = Paths.get(config.getOutputDir(), "traces");
       Files.createDirectories(dir);
       Path dest = dir.resolve(testName + "_" + System.currentTimeMillis() + ".zip");
-      context.tracing().stop(new Tracing.StopOptions().setPath(dest));
+      browserContext.tracing().stop(new Tracing.StopOptions().setPath(dest));
       log.info("Trace saved: {}", dest);
     } catch (Exception e) {
       log.error("Failed to save trace", e);
@@ -101,7 +97,7 @@ public abstract class BaseTest {
 
   private void closeResources() {
     try {
-      if (context != null) context.close();
+      if (browserContext != null) browserContext.close();
     } catch (Exception ignored) {
     }
 
