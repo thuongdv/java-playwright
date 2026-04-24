@@ -9,7 +9,8 @@ public class TaHomePage {
   private final Locator loginSignUpButton;
 
   public TaHomePage(Page page) {
-    this.loginSignUpButton = page.getByRole(AriaRole.LINK, new GetByRoleOptions().setName("Log in / Sign up"));
+    this.loginSignUpButton =
+        page.getByRole(AriaRole.LINK, new GetByRoleOptions().setName("Log in / Sign up"));
   }
 
   public void clickLoginSignUp() {

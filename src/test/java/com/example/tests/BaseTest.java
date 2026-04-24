@@ -3,23 +3,21 @@ package com.example.tests;
 import com.example.utils.BrowserFactory;
 import com.example.utils.ConfigManager;
 import com.microsoft.playwright.*;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /**
  * Base class for all tests.
  *
- * <p>
- * Lifecycle per test method:
- * 
+ * <p>Lifecycle per test method:
+ *
  * <pre>
  *   &#64;BeforeMethod  → create Playwright, Browser, BrowserContext, Page
  *   @AfterMethod   → handle screenshot / trace / video on failure, then close resources
@@ -29,99 +27,92 @@ import java.nio.file.Paths;
  */
 public abstract class BaseTest {
 
-    protected final Logger log = LoggerFactory.getLogger(getClass());
-    protected final ConfigManager config = ConfigManager.getInstance();
+  protected final Logger log = LoggerFactory.getLogger(getClass());
+  protected final ConfigManager config = ConfigManager.getInstance();
 
-    protected Playwright playwright;
-    protected BrowserContext context;
-    protected Browser browser;
-    protected Page page;
+  protected Playwright playwright;
+  protected BrowserContext context;
+  protected Browser browser;
+  protected Page page;
 
-    @BeforeMethod(alwaysRun = true)
-    public void setUp(Method testMethod) {
-        log.info("▶ Starting test: {}.{}", getClass().getSimpleName(), testMethod.getName());
+  @BeforeMethod(alwaysRun = true)
+  public void setUp(Method testMethod) {
+    log.info("▶ Starting test: {}.{}", getClass().getSimpleName(), testMethod.getName());
 
-        playwright = Playwright.create();
-        browser = BrowserFactory.createBrowser(playwright);
-        context = BrowserFactory.createContext(browser);
-        page = context.newPage();
-    }
+    playwright = Playwright.create();
+    browser = BrowserFactory.createBrowser(playwright);
+    context = BrowserFactory.createContext(browser);
+    page = context.newPage();
+  }
 
-    @AfterMethod(alwaysRun = true)
-    public void tearDown(ITestResult result, Method testMethod) {
-        String testName = getClass().getSimpleName() + "_" + testMethod.getName();
-        boolean failed = result.getStatus() == ITestResult.FAILURE;
+  @AfterMethod(alwaysRun = true)
+  public void tearDown(ITestResult result, Method testMethod) {
+    String testName = getClass().getSimpleName() + "_" + testMethod.getName();
+    boolean failed = result.getStatus() == ITestResult.FAILURE;
 
-        if (failed) {
-            log.warn("✘ Test FAILED: {}", testName);
-            captureScreenshot(testName);
-            saveTrace(testName);
-        } else {
-            log.info("✔ Test PASSED: {}", testName);
-            // Stop tracing without saving for passing tests (retain-on-failure mode)
-            if ("retain-on-failure".equals(config.getTraceMode())) {
-                try {
-                    context.tracing().stop();
-                } catch (Exception ignored) {
-                }
-            }
-        }
-
-        closeResources();
-    }
-
-    // ──────────────────────────────────────────────────────────────────────────
-    // Helpers
-    // ──────────────────────────────────────────────────────────────────────────
-
-    private void captureScreenshot(String testName) {
-        if (!config.screenshotOnFailure())
-            return;
+    if (failed) {
+      log.warn("✘ Test FAILED: {}", testName);
+      captureScreenshot(testName);
+      saveTrace(testName);
+    } else {
+      log.info("✔ Test PASSED: {}", testName);
+      // Stop tracing without saving for passing tests (retain-on-failure mode)
+      if ("retain-on-failure".equals(config.getTraceMode())) {
         try {
-            Path dir = Paths.get(config.getOutputDir(), "screenshots");
-            Files.createDirectories(dir);
-            Path dest = dir.resolve(testName + "_" + System.currentTimeMillis() + ".png");
-            page.screenshot(new Page.ScreenshotOptions()
-                    .setPath(dest)
-                    .setFullPage(true));
-            log.info("Screenshot saved: {}", dest);
-        } catch (Exception e) {
-            log.error("Failed to capture screenshot", e);
-        }
-    }
-
-    private void saveTrace(String testName) {
-        String traceMode = config.getTraceMode();
-        if ("off".equals(traceMode))
-            return;
-        try {
-            Path dir = Paths.get(config.getOutputDir(), "traces");
-            Files.createDirectories(dir);
-            Path dest = dir.resolve(testName + "_" + System.currentTimeMillis() + ".zip");
-            context.tracing().stop(new Tracing.StopOptions().setPath(dest));
-            log.info("Trace saved: {}", dest);
-        } catch (Exception e) {
-            log.error("Failed to save trace", e);
-        }
-    }
-
-    private void closeResources() {
-        try {
-            if (context != null)
-                context.close();
+          context.tracing().stop();
         } catch (Exception ignored) {
         }
-
-        try {
-            if (browser != null)
-                browser.close();
-        } catch (Exception ignored) {
-        }
-        
-        try {
-            if (playwright != null)
-                playwright.close();
-        } catch (Exception ignored) {
-        }
+      }
     }
+
+    closeResources();
+  }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Helpers
+  // ──────────────────────────────────────────────────────────────────────────
+
+  private void captureScreenshot(String testName) {
+    if (!config.screenshotOnFailure()) return;
+    try {
+      Path dir = Paths.get(config.getOutputDir(), "screenshots");
+      Files.createDirectories(dir);
+      Path dest = dir.resolve(testName + "_" + System.currentTimeMillis() + ".png");
+      page.screenshot(new Page.ScreenshotOptions().setPath(dest).setFullPage(true));
+      log.info("Screenshot saved: {}", dest);
+    } catch (Exception e) {
+      log.error("Failed to capture screenshot", e);
+    }
+  }
+
+  private void saveTrace(String testName) {
+    String traceMode = config.getTraceMode();
+    if ("off".equals(traceMode)) return;
+    try {
+      Path dir = Paths.get(config.getOutputDir(), "traces");
+      Files.createDirectories(dir);
+      Path dest = dir.resolve(testName + "_" + System.currentTimeMillis() + ".zip");
+      context.tracing().stop(new Tracing.StopOptions().setPath(dest));
+      log.info("Trace saved: {}", dest);
+    } catch (Exception e) {
+      log.error("Failed to save trace", e);
+    }
+  }
+
+  private void closeResources() {
+    try {
+      if (context != null) context.close();
+    } catch (Exception ignored) {
+    }
+
+    try {
+      if (browser != null) browser.close();
+    } catch (Exception ignored) {
+    }
+
+    try {
+      if (playwright != null) playwright.close();
+    } catch (Exception ignored) {
+    }
+  }
 }
